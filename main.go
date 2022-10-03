@@ -21,27 +21,13 @@ func main() {
 	lines := make(map[string]string)
 
 	// Read the first supplied file and add its lines to a map
-	fileReader1, err1 := os.Open(args[0])
-	if err1 != nil {
-		fmt.Println("Error coccured while reading file: ", err1)
-	}
-	fileScanner := bufio.NewScanner(fileReader1)
-	fileScanner.Split(bufio.ScanLines)
-
-	scanAndAppend(fileScanner, lines)
-	fileReader1.Close()
+	readFileAndAppend(config.FirstFilePath, lines)
 
 	if config.HasStdInInput {
 		scanner := bufio.NewScanner(os.Stdin)
 		scanAndAppend(scanner, lines)
 	} else {
-		fileReader2, err2 := os.Open(args[1])
-		if err2 != nil {
-			fmt.Println("Error coccured while reading file: ", err2)
-		}
-		fileScanner := bufio.NewScanner(fileReader2)
-		fileScanner.Split(bufio.ScanLines)
-		scanAndAppend(fileScanner, lines)
+		readFileAndAppend(config.SecondFilePath, lines)
 	}
 
 	dFileWriter, err := os.Create(config.TargetFilePath)
@@ -89,7 +75,7 @@ func verifyArgs(args []string, config *comb.CombinerConfig) {
 		}
 
 		config.FirstFilePath = args[0]
-		config.FirstFilePath = args[1]
+		config.SecondFilePath = args[1]
 
 	}
 
@@ -108,6 +94,17 @@ func verifyArgs(args []string, config *comb.CombinerConfig) {
 	}
 
 	config.TargetFilePath = defaultTragetFileName
+}
+
+func readFileAndAppend(path string, lines map[string]string) {
+	fileReader, err := os.Open(path)
+	if err != nil {
+		fmt.Println("Error coccured while reading file: ", err)
+	}
+	fileScanner := bufio.NewScanner(fileReader)
+	fileScanner.Split(bufio.ScanLines)
+	scanAndAppend(fileScanner, lines)
+	fileReader.Close()
 }
 
 func fileExists(path string) bool {
